@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Health & Fitness Calculators</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --accent: #22c55e;
+      --muted: #9ca3af;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1020, var(--bg));
+      color: var(--text);
+    }
+    header {
+      padding: 32px 16px; text-align: center;
+      border-bottom: 1px solid #1f2937;
+    }
+    header h1 { margin: 0 0 8px; font-size: 28px; }
+    header p { margin: 0; color: var(--muted); }
+    .container {
+      max-width: 960px; margin: 24px auto; padding: 0 16px;
+    }
+    .tabs {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px; margin-bottom: 16px;
+    }
+    .tab-btn {
+      background: #0b1220; border: 1px solid #1f2937; color: var(--text);
+      padding: 12px 16px; border-radius: 10px; cursor: pointer;
+      transition: border-color 0.2s, transform 0.05s;
+    }
+    .tab-btn.active {
+      border-color: var(--accent); box-shadow: 0 0 0 2px rgba(34,197,94,0.25) inset;
+    }
+    .tab-btn:active { transform: scale(0.99); }
+    .card {
+      background: var(--card); border: 1px solid #1f2937; border-radius: 14px;
+      padding: 18px; margin-bottom: 16px;
+    }
+    h2 { margin: 0 0 8px; font-size: 22px; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .grid {
+      display: grid; gap: 12px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+    label { display: block; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+    input, select {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid #374151; background: #0b1220; color: var(--text);
+      outline: none;
+    }
+    input::placeholder { color: #64748b; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #052e16; font-weight: 600;
+      border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer;
+    }
+    .btn.secondary {
+      background: transparent; color: var(--text); border: 1px solid #374151;
+    }
+    .result {
+      background: #0b1220; border: 1px dashed #334155; border-radius: 10px;
+      padding: 12px; margin-top: 12px; color: var(--text);
+    }
+    .badge {
+      display: inline-block; padding: 4px 8px; border-radius: 999px;
+      font-size: 12px; margin-left: 8px;
+    }
+    .ok { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.35); }
+    .warn { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.35); }
+    .bad { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.35); }
+    .small { font-size: 13px; color: var(--muted); }
+    footer {
+      text-align: center; color: var(--muted); padding: 24px 16px;
+      border-top: 1px solid #1f2937; margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Health & Fitness Calculators</h1>
+    <p>Quick, accurate tools: BMI, daily calories, hydration, and age.</p>
+  </header>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="bmi">BMI Calculator</button>
+      <button class="tab-btn" data-tab="calories">Daily Calories</button>
+      <button class="tab-btn" data-tab="water">Water Intake</button>
+      <button class="tab-btn" data-tab="age">Age Calculator</button>
+    </div>
+
+    <!-- BMI -->
+    <section class="card tab" id="bmi">
+      <h2>BMI calculator</h2>
+      <p class="muted">Body Mass Index using metric inputs.</p>
+
+      <div class="grid grid-2">
+        <div>
+          <label for="bmi-weight">Weight (kg)</label>
+          <input type="number" id="bmi-weight" placeholder="e.g., 70" min="0" step="0.1" />
+        </div>
+        <div>
+          <label for="bmi-height">Height (cm)</label>
+          <input type="number" id="bmi-height" placeholder="e.g., 175" min="0" step="0.1" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn" id="bmi-calc">Calculate BMI</button>
+        <button class="btn secondary" id="bmi-reset">Reset</button>
+      </div>
+
+      <div class="result" id="bmi-result">Enter your weight and height to see your BMI.</div>
+      <p class="small">Formula: BMI = weight (kg) ÷ [height (m)]²</p>
+    </section>
+
+    <!-- Daily Calories -->
+    <section class="card tab" id="calories" style="display:none;">
+      <h2>Daily calories calculator</h2>
+      <p class="muted">Mifflin–St Jeor BMR + activity multiplier.</p>
+
+      <div class="grid grid-3">
+        <div>
+          <label for="cal-sex">Sex</label>
+          <select id="cal-sex">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div>
+          <label for="cal-age">Age (years)</label>
+          <input type="number" id="cal-age" placeholder="e.g., 30" min="0" />
+        </div>
+        <div>
+          <label for="cal-height">Height (cm)</label>
+          <input type="number" id="cal-height" placeholder="e.g., 175" min="0" step="0.1" />
+        </div>
+        <div>
+          <label for="cal-weight">Weight (kg)</label>
+          <input type="number" id="cal-weight" placeholder="e.g., 70" min="0" step="0.1" />
+        </div>
+        <div>
+          <label for="cal-activity">Activity level</label>
+          <select id="cal-activity">
+            <option value="1.2">Sedentary (little/no exercise)</option>
+            <option value="1.375">Light (1–3 days/week)</option>
+            <option value="1.55">Moderate (3–5 days/week)</option>
+            <option value="1.725">Active (6–7 days/week)</option>
+            <option value="1.9">Very active (physical job + training)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn" id="cal-calc">Calculate calories</button>
+        <button class="btn secondary" id="cal-reset">Reset</button>
+      </div>
+
+      <div class="result" id="cal-result">Fill in your details to estimate daily calorie needs.</div>
+      <p class="small">BMR (male) = 10·kg + 6.25·cm − 5·age + 5; BMR (female) = 10·kg + 6.25·cm − 5·age − 161. TDEE = BMR × activity.</p>
+    </section>
+
+    <!-- Water Intake -->
+    <section class="card tab" id="water" style="display:none;">
+      <h2>Water intake calculator</h2>
+      <p class="muted">Simple guideline based on body weight.</p>
+
+      <div class="grid grid-2">
+        <div>
+          <label for="water-weight">Weight (kg)</label>
+          <input type="number" id="water-weight" placeholder="e.g., 70" min="0" step="0.1" />
+        </div>
+        <div>
+          <label for="water-climate">Climate/activity</label>
+          <select id="water-climate">
+            <option value="0">Normal</option>
+            <option value="0.5">Hot day or training</option>
+            <option value="1">Very hot + intense training</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn" id="water-calc">Calculate intake</button>
+        <button class="btn secondary" id="water-reset">Reset</button>
+      </div>
+
+      <div class="result" id="water-result">Enter your weight to estimate daily water intake.</div>
+      <p class="small">Baseline: ~0.033 L per kg. Add 0.5–1.0 L for heat/training adjustments.</p>
+    </section>
+
+    <!-- Age Calculator -->
+    <section class="card tab" id="age" style="display:none;">
+      <h2>Age calculator</h2>
+      <p class="muted">Find your exact age and next birthday countdown.</p>
+
+      <div class="grid grid-2">
+        <div>
+          <label for="age-dob">Date of birth</label>
+          <input type="date" id="age-dob" />
+        </div>
+        <div>
+          <label for="age-ref">Reference date (optional)</label>
+          <input type="date" id="age-ref" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn" id="age-calc">Calculate age</button>
+        <button class="btn secondary" id="age-reset">Reset</button>
+      </div>
+
+      <div class="result" id="age-result">Select your birth date to compute your age.</div>
+      <p class="small">Calculates years, months, days, and time until next birthday.</p>
+    </section>
+
+    <!-- SEO helper content -->
+    <section class="card">
+      <h2>About these calculators</h2>
+      <p class="muted">These tools provide quick estimates to help guide your fitness journey. For medical concerns, consult a professional.</p>
+      <ul>
+        <li><strong>BMI:</strong> A simple ratio of weight to height. It’s a screening tool, not a diagnosis.</li>
+        <li><strong>Daily calories (TDEE):</strong> Based on BMR and activity. Your actual needs vary with training, body composition, and goals.</li>
+        <li><strong>Water intake:</strong> Hydration needs change with climate, exercise, and health status.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>
+    © <span id="year"></span> Health & Fitness Calculators • Simple, useful, free
+  </footer>
+
+  <script>
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.getAttribute('data-tab');
+        tabs.forEach(t => {
+          t.style.display = (t.id === target) ? '' : 'none';
+        });
+      });
+    });
+
+    // Footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Helpers
+    function fmt(n, digits = 2) {
+      const num = Number(n);
+      if (!isFinite(num)) return '—';
+      return Number(num.toFixed(digits)).toLocaleString();
+    }
+    function badge(category) {
+      if (category === 'Normal') return '<span class="badge ok">Normal</span>';
+      if (category === 'Underweight' || category === 'Overweight') return '<span class="badge warn">' + category + '</span>';
+      if (category === 'Obese') return '<span class="badge bad">Obese</span>';
+      return '';
+    }
+
+    // BMI Calculator
+    const bmiWeight = document.getElementById('bmi-weight');
+    const bmiHeight = document.getElementById('bmi-height');
+    const bmiResult = document.getElementById('bmi-result');
+    document.getElementById('bmi-calc').addEventListener('click', () => {
+      const w = parseFloat(bmiWeight.value);
+      const hcm = parseFloat(bmiHeight.value);
+      if (!(w > 0) || !(hcm > 0)) {
+        bmiResult.innerHTML = 'Please enter valid weight and height.';
+        return;
+      }
+      const hm = hcm / 100;
+      const bmi = w / (hm * hm);
+      let cat = '';
+      if (bmi < 18.5) cat = 'Underweight';
+      else if (bmi < 25) cat = 'Normal';
+      else if (bmi < 30) cat = 'Overweight';
+      else cat = 'Obese';
+
+      bmiResult.innerHTML = `Your BMI is <strong>${fmt(bmi)}</strong> ${badge(cat)}<br>
+        Category: <strong>${cat}</strong>`;
+    });
+    document.getElementById('bmi-reset').addEventListener('click', () => {
+      bmiWeight.value = ''; bmiHeight.value = '';
+      bmiResult.textContent = 'Enter your weight and height to see your BMI.';
+    });
+
+    // Daily Calories (Mifflin–St Jeor)
+    const calSex = document.getElementById('cal-sex');
+    const calAge = document.getElementById('cal-age');
+    const calHeight = document.getElementById('cal-height');
+    const calWeight = document.getElementById('cal-weight');
+    const calActivity = document.getElementById('cal-activity');
+    const calResult = document.getElementById('cal-result');
+
+    function mifflinStJeorBMR(sex, kg, cm, age) {
+      // BMR (male) = 10*kg + 6.25*cm - 5*age + 5
+      // BMR (female) = 10*kg + 6.25*cm - 5*age - 161
+      const base = 10 * kg + 6.25 * cm - 5 * age;
+      return sex === 'male' ? base + 5 : base - 161;
+    }
+
+    document.getElementById('cal-calc').addEventListener('click', () => {
+      const sex = calSex.value;
+      const age = parseFloat(calAge.value);
+      const cm = parseFloat(calHeight.value);
+      const kg = parseFloat(calWeight.value);
+      const mult = parseFloat(calActivity.value);
+      if (!(age > 0) || !(cm > 0) || !(kg > 0)) {
+        calResult.innerHTML = 'Please enter valid age, height, and weight.';
+        return;
+      }
+      const bmr = mifflinStJeorBMR(sex, kg, cm, age);
+      const tdee = bmr * mult;
+
+      // Example goals ±20%
+      const lose = tdee * 0.8;
+      const gain = tdee * 1.2;
+
+      calResult.innerHTML = `
+        <strong>BMR:</strong> ${fmt(bmr, 0)} kcal/day<br>
+        <strong>TDEE (maintenance):</strong> ${fmt(tdee, 0)} kcal/day<br>
+        <strong>Weight loss (approx):</strong> ${fmt(lose, 0)} kcal/day<br>
+        <strong>Weight gain (approx):</strong> ${fmt(gain, 0)} kcal/day
+      `;
+    });
+
+    document.getElementById('cal-reset').addEventListener('click', () => {
+      calAge.value = ''; calHeight.value = ''; calWeight.value = ''; calActivity.value = '1.2'; calSex.value = 'male';
+      calResult.textContent = 'Fill in your details to estimate daily calorie needs.';
+    });
+
+    // Water Intake
+    const waterWeight = document.getElementById('water-weight');
+    const waterClimate = document.getElementById('water-climate');
+    const waterResult = document.getElementById('water-result');
+
+    document.getElementById('water-calc').addEventListener('click', () => {
+      const kg = parseFloat(waterWeight.value);
+      const adj = parseFloat(waterClimate.value);
+      if (!(kg > 0)) {
+        waterResult.innerHTML = 'Please enter a valid weight.';
+        return;
+      }
+      const baseline = kg * 0.033; // L/day
+      const total = baseline + adj;
+      waterResult.innerHTML = `
+        <strong>Baseline:</strong> ${fmt(baseline)} L/day<br>
+        <strong>Adjustment:</strong> ${fmt(adj)} L/day<br>
+        <strong>Total recommendation:</strong> ${fmt(total)} L/day
+      `;
+    });
+
+    document.getElementById('water-reset').addEventListener('click', () => {
+      waterWeight.value = ''; waterClimate.value = '0';
+      waterResult.textContent = 'Enter your weight to estimate daily water intake.';
+    });
+
+    // Age Calculator
+    const ageDob = document.getElementById('age-dob');
+    const ageRef = document.getElementById('age-ref');
+    const ageResult = document.getElementById('age-result');
+
+    function diffYMD(from, to) {
+      // Returns {years, months, days}
+      let years = to.getFullYear() - from.getFullYear();
+      let months = to.getMonth() - from.getMonth();
+      let days = to.getDate() - from.getDate();
+
+      if (days < 0) {
+        const prevMonth = new Date(to.getFullYear(), to.getMonth(), 0); // last day of previous month
+        days += prevMonth.getDate();
+        months -= 1;
+      }
+      if (months < 0) {
+        months += 12;
+        years -= 1;
+      }
+      return { years, months, days };
+    }
+
+    function nextBirthday(dob, ref) {
+      let next = new Date(ref.getFullYear(), dob.getMonth(), dob.getDate());
+      if (next < ref) {
+        next = new Date(ref.getFullYear() + 1, dob.getMonth(), dob.getDate());
+      }
+      const ms = next - ref;
+      const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
+      return { date: next, days };
+    }
+
+    document.getElementById('age-calc').addEventListener('click', () => {
+      const dobStr = ageDob.value;
+      if (!dobStr) {
+        ageResult.textContent = 'Please select your date of birth.';
+        return;
+      }
+      const refStr = ageRef.value;
+      const dob = new Date(dobStr + 'T00:00:00');
+      const ref = refStr ? new Date(refStr + 'T00:00:00') : new Date();
+
+      if (dob > ref) {
+        ageResult.textContent = 'Birth date cannot be in the future.';
+        return;
+      }
+
+      const { years, months, days } = diffYMD(dob, ref);
+      const nb = nextBirthday(dob, ref);
+
+      ageResult.innerHTML = `
+        <strong>Exact age:</strong> ${years} years, ${months} months, ${days} days<br>
+        <strong>Next birthday:</strong> ${nb.date.toLocaleDateString()} (${nb.days} days to go)
+      `;
+    });
+
+    document.getElementById('age-reset').addEventListener('click', () => {
+      ageDob.value = ''; ageRef.value = '';
+      ageResult.textContent = 'Select your birth date to compute your age.';
+    });
+  </script>
+</body>
+</html>
